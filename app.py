@@ -4,14 +4,13 @@ from scraper import scrape_all_products
 from products import PRODUCTS
 
 st.set_page_config(
-page_title=“PRIX MUSCU”,
-page_icon=“💪”,
-layout=“centered”,
-initial_sidebar_state=“collapsed”
+    page_title="PRIX MUSCU",
+    page_icon="💪",
+    layout="centered",
+    initial_sidebar_state="collapsed"
 )
 
-st.markdown(”””
-
+st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap');
 
@@ -142,169 +141,164 @@ footer { display: none !important; }
 .stProgress > div > div { background-color: #C6F135 !important; }
 .status-msg { font-size: 11px; color: #444; letter-spacing: 1px; text-align: center; padding: 12px 0; }
 </style>
+""", unsafe_allow_html=True)
 
-“””, unsafe_allow_html=True)
-
-st.markdown(”””
-
+st.markdown("""
 <div class="app-header">
     <div class="app-title">PRIX MUSCU</div>
     <div class="app-subtitle">Leclerc &middot; Carrefour &middot; Auchan &middot; Lidl &middot; Casino</div>
 </div>
 """, unsafe_allow_html=True)
 
-CATEGORIES = [“Tous”, “Proteines”, “Legumes Surgeles”, “Feculents”]
+CATEGORIES = ["Tous", "Proteines", "Legumes Surgeles", "Feculents"]
 CAT_LABELS = {
-“Tous”: “Tous”,
-“Proteines”: “Proteines”,
-“Legumes Surgeles”: “Legumes”,
-“Feculents”: “Feculents”,
+    "Tous": "Tous",
+    "Proteines": "Proteines",
+    "Legumes Surgeles": "Legumes",
+    "Feculents": "Feculents",
 }
 
-if “category” not in st.session_state:
-st.session_state.category = “Tous”
+if "category" not in st.session_state:
+    st.session_state.category = "Tous"
 
 cols = st.columns(len(CATEGORIES))
 for i, cat in enumerate(CATEGORIES):
-with cols[i]:
-is_active = st.session_state.category == cat
-if st.button(
-CAT_LABELS[cat],
-key=“cat_” + str(i),
-type=“primary” if is_active else “secondary”,
-use_container_width=True,
-):
-st.session_state.category = cat
-st.rerun()
+    with cols[i]:
+        is_active = st.session_state.category == cat
+        if st.button(
+            CAT_LABELS[cat],
+            key="cat_" + str(i),
+            type="primary" if is_active else "secondary",
+            use_container_width=True,
+        ):
+            st.session_state.category = cat
+            st.rerun()
 
-st.markdown(”<div style='margin-bottom:20px'></div>”, unsafe_allow_html=True)
+st.markdown("<div style='margin-bottom:20px'></div>", unsafe_allow_html=True)
 
-compare_clicked = st.button(“COMPARER”, use_container_width=True)
+compare_clicked = st.button("COMPARER", use_container_width=True)
 
 STORE_BADGE = {
-“Leclerc”:   “badge-leclerc”,
-“Carrefour”: “badge-carrefour”,
-“Auchan”:    “badge-auchan”,
-“Lidl”:      “badge-lidl”,
-“Casino”:    “badge-casino”,
+    "Leclerc":   "badge-leclerc",
+    "Carrefour": "badge-carrefour",
+    "Auchan":    "badge-auchan",
+    "Lidl":      "badge-lidl",
+    "Casino":    "badge-casino",
 }
 
-def render_card(result):
-winner = result[“winner”]
-winner_price = result[“winner_price”]
-winner_pkg = result[“winner_pkg”]
-winner_per_kg = result[“winner_per_kg”]
-promo = result.get(“winner_promo”, “”)
-stores = result[“stores”]
-badge_cls = STORE_BADGE.get(winner, “badge-leclerc”)
 
-```
-other_stores_html = ""
-for store_name, sdata in sorted(stores.items(), key=lambda x: x[1]["per_kg"]):
-    is_best = store_name == winner
-    val_cls = "best" if is_best else ""
-    price_display = "{:.2f}".format(sdata["price"]) + "EUR"
-    kg_display = "{:.2f}".format(sdata["per_kg"]) + "EUR/kg"
-    promo_flag = " 🔥" if sdata.get("promo") else ""
-    other_stores_html += (
-        "<div class=\"store-price-row\">"
-        "<div class=\"store-price-name\">" + store_name + promo_flag + "</div>"
-        "<div class=\"store-price-val " + val_cls + "\">" + price_display + "</div>"
-        "<div class=\"store-price-kg\">" + kg_display + "</div>"
-        "</div>"
+def render_card(result):
+    winner = result["winner"]
+    winner_price = result["winner_price"]
+    winner_pkg = result["winner_pkg"]
+    winner_per_kg = result["winner_per_kg"]
+    promo = result.get("winner_promo", "")
+    stores = result["stores"]
+    badge_cls = STORE_BADGE.get(winner, "badge-leclerc")
+
+    other_stores_html = ""
+    for store_name, sdata in sorted(stores.items(), key=lambda x: x[1]["per_kg"]):
+        is_best = store_name == winner
+        val_cls = "best" if is_best else ""
+        price_display = "{:.2f}".format(sdata["price"]) + "EUR"
+        kg_display = "{:.2f}".format(sdata["per_kg"]) + "EUR/kg"
+        promo_flag = " 🔥" if sdata.get("promo") else ""
+        other_stores_html += (
+            "<div class=\"store-price-row\">"
+            "<div class=\"store-price-name\">" + store_name + promo_flag + "</div>"
+            "<div class=\"store-price-val " + val_cls + "\">" + price_display + "</div>"
+            "<div class=\"store-price-kg\">" + kg_display + "</div>"
+            "</div>"
+        )
+
+    promo_html = "<div class=\"promo-tag\">🔥 " + promo + "</div>" if promo else ""
+
+    price_str = "{:.2f}".format(winner_price) + "EUR"
+    pkg_str = winner_pkg
+    per_kg_str = "{:.2f}".format(winner_per_kg) + " EUR/kg"
+    prod_name = result["name"]
+
+    st.markdown(
+        "<div class=\"product-card winner\">"
+        "<div class=\"winner-badge\">MEILLEUR PRIX</div>"
+        "<div class=\"product-name\">" + prod_name + "</div>"
+        "<div><span class=\"product-price\">" + price_str + "</span>"
+        "<span class=\"product-pkg\">" + pkg_str + "</span></div>"
+        "<div class=\"price-per-kg\">" + per_kg_str + "</div>"
+        + promo_html +
+        "<span class=\"store-badge " + badge_cls + "\">" + winner + "</span>"
+        "<div class=\"stores-grid\">" + other_stores_html + "</div>"
+        "</div>",
+        unsafe_allow_html=True,
     )
 
-promo_html = "<div class=\"promo-tag\">🔥 " + promo + "</div>" if promo else ""
-
-price_str = "{:.2f}".format(winner_price) + "EUR"
-pkg_str = winner_pkg
-per_kg_str = "{:.2f}".format(winner_per_kg) + " EUR/kg"
-prod_name = result["name"]
-
-st.markdown(
-    "<div class=\"product-card winner\">"
-    "<div class=\"winner-badge\">MEILLEUR PRIX</div>"
-    "<div class=\"product-name\">" + prod_name + "</div>"
-    "<div><span class=\"product-price\">" + price_str + "</span>"
-    "<span class=\"product-pkg\">" + pkg_str + "</span></div>"
-    "<div class=\"price-per-kg\">" + per_kg_str + "</div>"
-    + promo_html +
-    "<span class=\"store-badge " + badge_cls + "\">" + winner + "</span>"
-    "<div class=\"stores-grid\">" + other_stores_html + "</div>"
-    "</div>",
-    unsafe_allow_html=True,
-)
-```
 
 def render_placeholder_card(name):
-st.markdown(
-“<div class="product-card">”
-“<div class="product-name">” + name + “</div>”
-“<div class="product-price" style="color:#222">– EUR</div>”
-“<div class="price-per-kg" style="color:#222">– EUR/kg</div>”
-“<div class="status-msg">En attente…</div>”
-“</div>”,
-unsafe_allow_html=True,
-)
+    st.markdown(
+        "<div class=\"product-card\">"
+        "<div class=\"product-name\">" + name + "</div>"
+        "<div class=\"product-price\" style=\"color:#222\">-- EUR</div>"
+        "<div class=\"price-per-kg\" style=\"color:#222\">-- EUR/kg</div>"
+        "<div class=\"status-msg\">En attente...</div>"
+        "</div>",
+        unsafe_allow_html=True,
+    )
+
 
 # Map display category to PRODUCTS keys
-
 CAT_MAP = {
-“Tous”: None,
-“Proteines”: “Proteines”,
-“Legumes Surgeles”: “Legumes Surgeles”,
-“Feculents”: “Feculents”,
+    "Tous": None,
+    "Proteines": "Proteines",
+    "Legumes Surgeles": "Legumes Surgeles",
+    "Feculents": "Feculents",
 }
 
 if compare_clicked:
-cat_filter = st.session_state.category
-filtered = {
-cat: prods for cat, prods in PRODUCTS.items()
-if cat_filter == “Tous” or cat == cat_filter
-}
+    cat_filter = st.session_state.category
+    filtered = {
+        cat: prods for cat, prods in PRODUCTS.items()
+        if cat_filter == "Tous" or cat == cat_filter
+    }
 
-```
-progress_bar = st.progress(0, text="Connexion aux enseignes...")
+    progress_bar = st.progress(0, text="Connexion aux enseignes...")
 
-with st.spinner("Analyse en cours..."):
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    try:
-        raw = loop.run_until_complete(scrape_all_products(filtered))
-    finally:
-        loop.close()
+    with st.spinner("Analyse en cours..."):
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        try:
+            raw = loop.run_until_complete(scrape_all_products(filtered))
+        finally:
+            loop.close()
 
-progress_bar.progress(1.0, text="Analyse terminee")
+    progress_bar.progress(1.0, text="Analyse terminee")
 
-for cat, prods in filtered.items():
+    for cat, prods in filtered.items():
+        st.markdown(
+            "<div class=\"section-title\">" + cat + "</div>",
+            unsafe_allow_html=True,
+        )
+        for product in prods:
+            key = cat + "/" + product["name"]
+            if key in raw and raw[key]:
+                render_card(raw[key])
+            else:
+                st.markdown(
+                    "<div class=\"product-card\">"
+                    "<div class=\"product-name\">" + product["name"] + "</div>"
+                    "<div style=\"font-size:11px;color:#333;margin-top:8px;\">Prix non disponible</div>"
+                    "</div>",
+                    unsafe_allow_html=True,
+                )
+else:
     st.markdown(
-        "<div class=\"section-title\">" + cat + "</div>",
+        "<div class=\"status-msg\">Appuie sur COMPARER pour lancer l'analyse.</div>",
         unsafe_allow_html=True,
     )
-    for product in prods:
-        key = cat + "/" + product["name"]
-        if key in raw and raw[key]:
-            render_card(raw[key])
-        else:
+    for cat, prods in PRODUCTS.items():
+        if st.session_state.category == "Tous" or st.session_state.category == cat:
             st.markdown(
-                "<div class=\"product-card\">"
-                "<div class=\"product-name\">" + product["name"] + "</div>"
-                "<div style=\"font-size:11px;color:#333;margin-top:8px;\">Prix non disponible</div>"
-                "</div>",
+                "<div class=\"section-title\">" + cat + "</div>",
                 unsafe_allow_html=True,
             )
-```
-
-else:
-st.markdown(
-“<div class="status-msg">Appuie sur COMPARER pour lancer l’analyse.</div>”,
-unsafe_allow_html=True,
-)
-for cat, prods in PRODUCTS.items():
-if st.session_state.category == “Tous” or st.session_state.category == cat:
-st.markdown(
-“<div class="section-title">” + cat + “</div>”,
-unsafe_allow_html=True,
-)
-for p in prods:
-render_placeholder_card(p[“name”])
+            for p in prods:
+                render_placeholder_card(p["name"])
