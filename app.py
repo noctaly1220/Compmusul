@@ -83,6 +83,7 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"] {
 .badge-lidl        { background: #ffd60022; color: #ffd600; border: 1px solid #ffd60044; }
 .badge-casino      { background: #e5000022; color: #ff6699; border: 1px solid #ff669944; }
 .badge-intermarche { background: #00800022; color: #00cc66; border: 1px solid #00cc6644; }
+.badge-aldi        { background: #00529b22; color: #00aaff; border: 1px solid #00aaff44; }
 .stProgress > div > div { background-color: #C6F135 !important; }
 .status-msg { font-size: 11px; color: #444; letter-spacing: 1px; text-align: center; padding: 12px 0; }
 .mode-label { font-size: 10px; color: #333; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 8px; }
@@ -93,7 +94,7 @@ html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"] {
 st.markdown("""
 <div class="app-header">
     <div class="app-title">PRIX MUSCU</div>
-    <div class="app-subtitle">Leclerc · Carrefour · Auchan · Lidl · Casino · Intermarche</div>
+    <div class="app-subtitle">Leclerc · Carrefour · Auchan · Lidl · Casino · Intermarche · Aldi</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -144,6 +145,7 @@ STORE_BADGE = {
     "Lidl":        "badge-lidl",
     "Casino":      "badge-casino",
     "Intermarche": "badge-intermarche",
+    "Aldi":        "badge-aldi",
 }
 
 # ── RENDER HELPERS ────────────────────────────────────────────────────────────
@@ -211,7 +213,7 @@ if compare_clicked:
             kw_key = "keywords_marque" if mode == "marque" else "keywords_pp"
             adapted.append({
                 "name":     p["name"],
-                "keywords": p[kw_key],
+                "keywords": p.get(kw_key) or p.get("keywords_pp") or [""],
                 "weight_g": p["weight_g"],
             })
         filtered_with_kw[cat] = adapted
@@ -222,7 +224,7 @@ if compare_clicked:
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         try:
-            raw = loop.run_until_complete(scrape_all_products(filtered_with_kw))
+            raw = loop.run_until_complete(scrape_all_products(filtered_with_kw, mode=mode))
         finally:
             loop.close()
 
